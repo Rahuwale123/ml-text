@@ -111,6 +111,8 @@ def to_cpu_array(data):
         return data.to_cpu().data
     elif GPU_AVAILABLE and hasattr(data, 'get'):  # CuPy array
         return cp.asnumpy(data)
+    elif GPU_AVAILABLE and hasattr(data, 'device'):  # CuPy array with device attribute
+        return cp.asnumpy(data)
     else:
         return np.asarray(data)
 

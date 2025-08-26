@@ -203,18 +203,18 @@ class TextGenerationModel:
         
         # Initialize sequence with the last characters from seed text
         if len(seed_text) >= self.sequence_length:
-            current_sequence = np.array([[char_to_idx.get(c, 0) for c in seed_text[-self.sequence_length:]]])
+            current_sequence = self.xp.array([[char_to_idx.get(c, 0) for c in seed_text[-self.sequence_length:]]])
         else:
             # Pad with zeros if seed text is shorter than sequence length
             padding = [0] * (self.sequence_length - len(seed_text))
-            current_sequence = np.array([padding + [char_to_idx.get(c, 0) for c in seed_text]])
+            current_sequence = self.xp.array([padding + [char_to_idx.get(c, 0) for c in seed_text]])
         
         for _ in range(length):
             # Get predictions
             y_pred, _, _ = self.forward(current_sequence)
             
-            # Get the last prediction
-            last_pred = y_pred[0, -1, :]
+            # Get the last prediction and convert to CPU for numpy operations
+            last_pred = to_cpu_array(y_pred[0, -1, :])
             
             # Apply temperature
             if temperature != 1.0:
@@ -228,7 +228,7 @@ class TextGenerationModel:
             generated_text += next_char
             
             # Update sequence (shift and add new character)
-            current_sequence = np.roll(current_sequence, -1, axis=1)
+            current_sequence = self.xp.roll(current_sequence, -1, axis=1)
             current_sequence[0, -1] = next_char_idx
         
         return generated_text
