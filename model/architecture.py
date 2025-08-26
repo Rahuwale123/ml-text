@@ -148,6 +148,10 @@ class TextGenerationModel:
         if self.embedding_weights is None:
             self.initialize_parameters()
         
+        # Convert inputs to appropriate device arrays
+        X = self.xp.asarray(X)
+        y = self.xp.asarray(y)
+        
         n_samples = len(X)
         n_batches = (n_samples + batch_size - 1) // batch_size
         
@@ -194,6 +198,8 @@ class TextGenerationModel:
     
     def predict(self, X):
         """Make predictions"""
+        # Convert input to appropriate device array
+        X = self.xp.asarray(X)
         y_pred, _, _ = self.forward(X)
         return y_pred
     
