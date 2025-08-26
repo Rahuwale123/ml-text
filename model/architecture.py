@@ -1,18 +1,28 @@
 """
 Text Generation Model Implementation - Character-Level Language Model
+GPU Accelerated Version
 """
 
 import numpy as np
+from utils.gpu_utils import (
+    get_array_module, to_gpu_array, to_cpu_array, 
+    dot, sum, mean, exp, log, random_randn, zeros, zeros_like,
+    synchronize_gpu, print_gpu_info, GPU_AVAILABLE
+)
 
 class TextGenerationModel:
     """Character-level text generation model using a simple neural network"""
     
-    def __init__(self, vocab_size, embedding_dim=64, hidden_dim=128, learning_rate=0.01, sequence_length=50):
+    def __init__(self, vocab_size, embedding_dim=64, hidden_dim=128, learning_rate=0.01, sequence_length=50, device='auto'):
         self.vocab_size = vocab_size
         self.embedding_dim = embedding_dim
         self.hidden_dim = hidden_dim
         self.learning_rate = learning_rate
         self.sequence_length = sequence_length
+        self.device = device
+        
+        # Get appropriate array module
+        self.xp = get_array_module(device)
         
         # Model parameters
         self.embedding_weights = None
@@ -23,21 +33,25 @@ class TextGenerationModel:
         
         # Training history
         self.history = {'loss': []}
+        
+        # Print device info
+        if device == 'auto' or device == 'gpu':
+            print_gpu_info()
     
     def initialize_parameters(self):
         """Initialize model parameters"""
         # Xavier/Glorot initialization
-        self.embedding_weights = np.random.randn(self.vocab_size, self.embedding_dim) * np.sqrt(2.0 / self.vocab_size)
-        self.hidden_weights = np.random.randn(self.embedding_dim, self.hidden_dim) * np.sqrt(2.0 / self.embedding_dim)
-        self.output_weights = np.random.randn(self.hidden_dim, self.vocab_size) * np.sqrt(2.0 / self.hidden_dim)
+        self.embedding_weights = random_randn(self.vocab_size, self.embedding_dim, device=self.device) * self.xp.sqrt(2.0 / self.vocab_size)
+        self.hidden_weights = random_randn(self.embedding_dim, self.hidden_dim, device=self.device) * self.xp.sqrt(2.0 / self.embedding_dim)
+        self.output_weights = random_randn(self.hidden_dim, self.vocab_size, device=self.device) * self.xp.sqrt(2.0 / self.hidden_dim)
         
-        self.hidden_bias = np.zeros(self.hidden_dim)
-        self.output_bias = np.zeros(self.vocab_size)
+        self.hidden_bias = zeros(self.hidden_dim, device=self.device)
+        self.output_bias = zeros(self.vocab_size, device=self.device)
     
     def one_hot_encode(self, sequence):
         """Convert sequence of indices to one-hot encoding"""
         batch_size, seq_length = sequence.shape
-        one_hot = np.zeros((batch_size, seq_length, self.vocab_size))
+        one_hot = zeros((batch_size, seq_length, self.vocab_size), device=self.device)
         
         for i in range(batch_size):
             for j in range(seq_length):
@@ -47,8 +61,8 @@ class TextGenerationModel:
     
     def softmax(self, x):
         """Compute softmax function"""
-        exp_x = np.exp(x - np.max(x, axis=-1, keepdims=True))
-        return exp_x / np.sum(exp_x, axis=-1, keepdims=True)
+        exp_x = exp(x - self.xp.max(x, axis=-1, keepdims=True), device=self.device)
+        return exp_x / sum(exp_x, axis=-1, keepdims=True, device=self.device)
     
     def forward(self, X):
         """Forward pass through the network"""
@@ -58,14 +72,14 @@ class TextGenerationModel:
         X_one_hot = self.one_hot_encode(X)
         
         # Embedding layer
-        embedded = np.dot(X_one_hot, self.embedding_weights)  # (batch_size, seq_length, embedding_dim)
+        embedded = dot(X_one_hot, self.embedding_weights, device=self.device)  # (batch_size, seq_length, embedding_dim)
         
         # Hidden layer with ReLU activation
-        hidden = np.dot(embedded, self.hidden_weights) + self.hidden_bias
-        hidden = np.maximum(0, hidden)  # ReLU activation
+        hidden = dot(embedded, self.hidden_weights, device=self.device) + self.hidden_bias
+        hidden = self.xp.maximum(0, hidden)  # ReLU activation
         
         # Output layer
-        output = np.dot(hidden, self.output_weights) + self.output_bias
+        output = dot(hidden, self.output_weights, device=self.device) + self.output_bias
         
         # Apply softmax to get probabilities
         probabilities = self.softmax(output)
@@ -79,10 +93,10 @@ class TextGenerationModel:
         y_true_one_hot = self.one_hot_encode(y_true)
         
         # Clip probabilities to avoid log(0)
-        y_pred = np.clip(y_pred, 1e-15, 1.0)
+        y_pred = self.xp.clip(y_pred, 1e-15, 1.0)
         
         # Cross-entropy loss
-        loss = -np.sum(y_true_one_hot * np.log(y_pred)) / (batch_size * seq_length)
+        loss = -sum(y_true_one_hot * log(y_pred, device=self.device), device=self.device) / (batch_size * seq_length)
         return loss
     
     def compute_gradients(self, X, y_true, y_pred, embedded, hidden):
@@ -96,26 +110,26 @@ class TextGenerationModel:
         d_output = (y_pred - y_true_one_hot) / (batch_size * seq_length)
         
         # Gradient of loss with respect to hidden layer
-        d_hidden = np.dot(d_output, self.output_weights.T)
+        d_hidden = dot(d_output, self.output_weights.T, device=self.device)
         
         # Gradient of loss with respect to embedding
-        d_embedding = np.dot(d_hidden, self.hidden_weights.T)
+        d_embedding = dot(d_hidden, self.hidden_weights.T, device=self.device)
         
         # Gradients for weights and biases - reshape for proper matrix multiplication
-        d_output_weights = np.dot(hidden.reshape(-1, self.hidden_dim).T, 
-                                 d_output.reshape(-1, self.vocab_size))
-        d_output_bias = np.sum(d_output, axis=(0, 1))
+        d_output_weights = dot(hidden.reshape(-1, self.hidden_dim).T, 
+                              d_output.reshape(-1, self.vocab_size), device=self.device)
+        d_output_bias = sum(d_output, axis=(0, 1), device=self.device)
         
-        d_hidden_weights = np.dot(embedded.reshape(-1, self.embedding_dim).T, 
-                                 d_hidden.reshape(-1, self.hidden_dim))
-        d_hidden_bias = np.sum(d_hidden, axis=(0, 1))
+        d_hidden_weights = dot(embedded.reshape(-1, self.embedding_dim).T, 
+                              d_hidden.reshape(-1, self.hidden_dim), device=self.device)
+        d_hidden_bias = sum(d_hidden, axis=(0, 1), device=self.device)
         
         # Gradient for embedding weights
-        d_embedding_weights = np.zeros_like(self.embedding_weights)
+        d_embedding_weights = zeros_like(self.embedding_weights, device=self.device)
         X_one_hot = self.one_hot_encode(X)
         for i in range(batch_size):
             for j in range(seq_length):
-                d_embedding_weights += np.outer(X_one_hot[i, j], d_embedding[i, j])
+                d_embedding_weights += self.xp.outer(X_one_hot[i, j], d_embedding[i, j])
         
         return d_embedding_weights, d_hidden_weights, d_output_weights, d_hidden_bias, d_output_bias
     
@@ -139,7 +153,7 @@ class TextGenerationModel:
         
         for epoch in range(epochs):
             # Shuffle data
-            indices = np.random.permutation(n_samples)
+            indices = self.xp.random.permutation(n_samples)
             X_shuffled = X[indices]
             y_shuffled = y[indices]
             
@@ -165,9 +179,13 @@ class TextGenerationModel:
                 # Update parameters
                 self.update_parameters(gradients)
             
+            # Synchronize GPU if needed
+            if self.device == 'gpu':
+                synchronize_gpu()
+            
             # Average loss for the epoch
             avg_loss = epoch_loss / n_batches
-            self.history['loss'].append(avg_loss)
+            self.history['loss'].append(float(avg_loss))  # Convert to float for JSON serialization
             
             if verbose and (epoch + 1) % 10 == 0:
                 print(f"Epoch {epoch + 1}/{epochs}, Loss: {avg_loss:.4f}")
@@ -217,12 +235,19 @@ class TextGenerationModel:
     
     def save(self, filepath):
         """Save model parameters"""
+        # Convert to CPU arrays for saving
+        embedding_weights = to_cpu_array(self.embedding_weights)
+        hidden_weights = to_cpu_array(self.hidden_weights)
+        output_weights = to_cpu_array(self.output_weights)
+        hidden_bias = to_cpu_array(self.hidden_bias)
+        output_bias = to_cpu_array(self.output_bias)
+        
         np.savez(filepath, 
-                 embedding_weights=self.embedding_weights,
-                 hidden_weights=self.hidden_weights,
-                 output_weights=self.output_weights,
-                 hidden_bias=self.hidden_bias,
-                 output_bias=self.output_bias,
+                 embedding_weights=embedding_weights,
+                 hidden_weights=hidden_weights,
+                 output_weights=output_weights,
+                 hidden_bias=hidden_bias,
+                 output_bias=output_bias,
                  vocab_size=self.vocab_size,
                  embedding_dim=self.embedding_dim,
                  hidden_dim=self.hidden_dim)
@@ -230,11 +255,14 @@ class TextGenerationModel:
     def load(self, filepath):
         """Load model parameters"""
         data = np.load(filepath)
-        self.embedding_weights = data['embedding_weights']
-        self.hidden_weights = data['hidden_weights']
-        self.output_weights = data['output_weights']
-        self.hidden_bias = data['hidden_bias']
-        self.output_bias = data['output_bias']
+        
+        # Load and convert to appropriate device
+        self.embedding_weights = to_gpu_array(data['embedding_weights'], device=self.device).data
+        self.hidden_weights = to_gpu_array(data['hidden_weights'], device=self.device).data
+        self.output_weights = to_gpu_array(data['output_weights'], device=self.device).data
+        self.hidden_bias = to_gpu_array(data['hidden_bias'], device=self.device).data
+        self.output_bias = to_gpu_array(data['output_bias'], device=self.device).data
+        
         self.vocab_size = int(data['vocab_size'])
         self.embedding_dim = int(data['embedding_dim'])
         self.hidden_dim = int(data['hidden_dim'])

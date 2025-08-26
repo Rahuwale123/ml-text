@@ -12,7 +12,7 @@ def load_qa_model_and_mappings():
     """Load the trained QA model and character mappings"""
     try:
         # Load model
-        model = TextGenerationModel(vocab_size=50, embedding_dim=64, hidden_dim=128, sequence_length=50)
+        model = TextGenerationModel(vocab_size=50, embedding_dim=64, hidden_dim=128, sequence_length=50, device='auto')
         model.load("model/qa_text_generation_model.npz")
         
         # Load character mappings

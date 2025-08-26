@@ -1,2 +1,7 @@
 numpy>=1.21.0
 pyyaml>=6.0
+# GPU acceleration (optional - will fall back to CPU if not available)
+cupy-cuda12x>=12.0.0; platform_system != "Windows"
+cupy-cuda11x>=11.0.0; platform_system == "Windows"
+# Alternative GPU library
+# numba>=0.56.0

@@ -88,7 +88,8 @@ def main():
         embedding_dim=config.embedding_dim,
         hidden_dim=config.hidden_dim,
         learning_rate=config.learning_rate,
-        sequence_length=config.sequence_length
+        sequence_length=config.sequence_length,
+        device='auto'  # Will use GPU if available, otherwise CPU
     )
     
     logger.log("Training text generation model...")

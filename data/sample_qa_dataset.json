@@ -1,0 +1,122 @@
+[
+  {
+    "question": "What is machine learning?",
+    "answer": "Machine learning is a subset of artificial intelligence that enables computers to learn and make predictions from data without being explicitly programmed."
+  },
+  {
+    "question": "How does deep learning work?",
+    "answer": "Deep learning uses neural networks with multiple layers to automatically learn hierarchical representations of data, enabling complex pattern recognition."
+  },
+  {
+    "question": "What is natural language processing?",
+    "answer": "Natural language processing is a field of AI that helps computers understand, interpret, and generate human language through various algorithms and models."
+  },
+  {
+    "question": "What are the main types of machine learning?",
+    "answer": "The main types are supervised learning, unsupervised learning, and reinforcement learning, each with different approaches to learning from data."
+  },
+  {
+    "question": "How do neural networks learn?",
+    "answer": "Neural networks learn through backpropagation, adjusting weights and biases based on the difference between predicted and actual outputs."
+  },
+  {
+    "question": "What is the difference between AI and ML?",
+    "answer": "Artificial intelligence is the broader field of creating intelligent machines, while machine learning is a specific approach within AI that focuses on data-driven learning."
+  },
+  {
+    "question": "What is supervised learning?",
+    "answer": "Supervised learning uses labeled training data to teach models to make predictions, with the goal of mapping inputs to known outputs."
+  },
+  {
+    "question": "What is unsupervised learning?",
+    "answer": "Unsupervised learning finds hidden patterns in unlabeled data, often used for clustering, dimensionality reduction, and association rule learning."
+  },
+  {
+    "question": "What is reinforcement learning?",
+    "answer": "Reinforcement learning trains agents to make decisions by learning from rewards and penalties in an environment, optimizing for long-term success."
+  },
+  {
+    "question": "What is a neural network?",
+    "answer": "A neural network is a computational model inspired by biological neurons, consisting of interconnected nodes that process and transmit information."
+  },
+  {
+    "question": "What is overfitting in machine learning?",
+    "answer": "Overfitting occurs when a model learns the training data too well, including noise and irrelevant patterns, leading to poor generalization on new data."
+  },
+  {
+    "question": "What is underfitting in machine learning?",
+    "answer": "Underfitting happens when a model is too simple to capture the underlying patterns in the data, resulting in poor performance on both training and test sets."
+  },
+  {
+    "question": "What is cross-validation?",
+    "answer": "Cross-validation is a technique to assess model performance by splitting data into multiple folds and training on different combinations to ensure robust evaluation."
+  },
+  {
+    "question": "What is feature engineering?",
+    "answer": "Feature engineering is the process of creating, transforming, and selecting input variables to improve model performance and interpretability."
+  },
+  {
+    "question": "What is the bias-variance tradeoff?",
+    "answer": "The bias-variance tradeoff describes the relationship between model complexity and generalization error, balancing underfitting and overfitting."
+  },
+  {
+    "question": "What is gradient descent?",
+    "answer": "Gradient descent is an optimization algorithm that iteratively adjusts model parameters by moving in the direction of steepest descent of the loss function."
+  },
+  {
+    "question": "What is backpropagation?",
+    "answer": "Backpropagation is an algorithm for calculating gradients in neural networks by propagating error signals backward through the network layers."
+  },
+  {
+    "question": "What is regularization?",
+    "answer": "Regularization techniques prevent overfitting by adding constraints or penalties to the model, encouraging simpler and more generalizable solutions."
+  },
+  {
+    "question": "What is the difference between classification and regression?",
+    "answer": "Classification predicts discrete categories or classes, while regression predicts continuous numerical values based on input features."
+  },
+  {
+    "question": "What is a decision tree?",
+    "answer": "A decision tree is a tree-like model that makes decisions based on feature values, splitting data into branches until reaching leaf nodes with predictions."
+  },
+  {
+    "question": "What is random forest?",
+    "answer": "Random forest is an ensemble method that combines multiple decision trees, using voting or averaging to make more robust and accurate predictions."
+  },
+  {
+    "question": "What is support vector machine?",
+    "answer": "Support vector machine finds the optimal hyperplane that best separates different classes in the data, maximizing the margin between classes."
+  },
+  {
+    "question": "What is k-means clustering?",
+    "answer": "K-means clustering is an unsupervised algorithm that groups similar data points into clusters by minimizing the distance between points and cluster centroids."
+  },
+  {
+    "question": "What is principal component analysis?",
+    "answer": "Principal component analysis reduces data dimensionality by finding linear combinations of features that capture the maximum variance in the data."
+  },
+  {
+    "question": "What is the difference between batch and online learning?",
+    "answer": "Batch learning processes all training data at once, while online learning updates the model incrementally as new data becomes available."
+  },
+  {
+    "question": "What is transfer learning?",
+    "answer": "Transfer learning leverages knowledge from pre-trained models on related tasks to improve performance on new tasks with limited data."
+  },
+  {
+    "question": "What is data preprocessing?",
+    "answer": "Data preprocessing involves cleaning, transforming, and preparing raw data for machine learning algorithms, including handling missing values and scaling features."
+  },
+  {
+    "question": "What is the curse of dimensionality?",
+    "answer": "The curse of dimensionality refers to the exponential increase in data requirements as the number of features grows, making learning more difficult."
+  },
+  {
+    "question": "What is ensemble learning?",
+    "answer": "Ensemble learning combines multiple models to improve prediction accuracy and robustness, often using methods like voting, averaging, or stacking."
+  },
+  {
+    "question": "What is the difference between precision and recall?",
+    "answer": "Precision measures the accuracy of positive predictions, while recall measures the ability to find all positive instances in the data."
+  }
+]

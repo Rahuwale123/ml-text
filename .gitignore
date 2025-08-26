@@ -32,11 +32,6 @@ MANIFEST
 logs/
 training.log
 
-# Data
-data/
-*.csv
-*.json
-*.parquet
 
 # IDE
 .vscode/
