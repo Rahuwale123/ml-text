@@ -53,6 +53,3 @@ tmp/
 # Jupyter notebooks (as per user preferences)
 *.ipynb
 
-# Test files (as per user preferences)
-test_*.py
-*_test.py
