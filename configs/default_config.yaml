@@ -1,16 +1,16 @@
 # Default Configuration for Text Generation Model
 
-# Data parameters
-sequence_length: 50
+# Data parameters - Optimized for GPU power
+sequence_length: 100
 test_size: 0.2
 random_state: 42
 
-# Model parameters
-embedding_dim: 64
-hidden_dim: 128
+# Model parameters - Optimized for GPU utilization
+embedding_dim: 256
+hidden_dim: 512
 learning_rate: 0.01
-epochs: 100
-batch_size: 32
+epochs: 200
+batch_size: 128
 
 # Text generation parameters
 temperature: 0.8
