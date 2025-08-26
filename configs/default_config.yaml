@@ -1,0 +1,25 @@
+# Default Configuration for Text Generation Model
+
+# Data parameters
+sequence_length: 50
+test_size: 0.2
+random_state: 42
+
+# Model parameters
+embedding_dim: 64
+hidden_dim: 128
+learning_rate: 0.01
+epochs: 100
+batch_size: 32
+
+# Text generation parameters
+temperature: 0.8
+generation_length: 200
+
+# Training
+verbose: true
+save_model: true
+model_path: "model/text_generation_model.npz"
+
+# Logging
+log_file: "training.log"
